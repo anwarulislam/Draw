@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Testing Canvas</title>
+
+    <style>
+        button {
+            background: #333 !important;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: auto;
+            background: #6f6b6b;
+            color: #bbb;
+        }
+
+        canvas {
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 10px;
+        }
+
+        body,
+        input,
+        div,
+        p,
+        button {
+            background: rgb(4, 80, 245);
+            text-align: center;
+            font-family: 'Operator Mono';
+            font-style: italic
+        }
+
+        .control {
+            margin: 10px auto;
+            text-align: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="control">
+        <input type="range" name="" id="rangeW" value="10">
+        <input type="color" id="colorS">
+        <button type="button" id="resetC" disabled>Reset Color</button>
+        <button type="button" id="randomC"> Random Color </button>
+    </div>
+    <canvas id="draw"></canvas>
+
+
+    <script>
+        const canvas = document.querySelector('#draw')
+        const rangeW = document.querySelector('#rangeW')
+        const colorS = document.querySelector('#colorS')
+        const resetC = document.querySelector('#resetC')
+        const randomC = document.querySelector('#randomC')
+
+        let colorC = false
+        let randomColor = false
+
+        const ctx = canvas.getContext('2d')
+        console.dir(canvas)
+
+        canvas.height = window.innerHeight - 100
+        canvas.width = window.innerWidth - 100
+
+        let hue = 0
+        //ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`
+        ctx.lineJoin = 'round'
+        ctx.lineCap = 'round'
+        ctx.lineWidth = rangeW.value
+
+        let drawing = false;
+        let lastX = 0
+        let lastY = 0
+
+
+        function draw(e) {
+            if (!drawing) return
+
+            ctx.beginPath()
+            ctx.moveTo(lastX, lastY)
+            ctx.lineTo(e.offsetX, e.offsetY)
+            ctx.stroke()
+
+            if (randomColor) {
+                ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`
+            }
+
+            //ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`
+
+            lastX = e.offsetX
+            lastY = e.offsetY
+
+            hue++
+        }
+
+        canvas.addEventListener('mousemove', draw)
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true
+            lastX = e.offsetX
+            lastY = e.offsetY
+        })
+        canvas.addEventListener('mouseup', () => drawing = false)
+        //canvas.addEventListener('mouseout', () => drawing = false)
+        window.addEventListener('keydown', (e) => {
+            console.log(e)
+            if (e.ctrlKey) {
+
+                drawing = true
+                lastX = e.offsetX
+                lastY = e.offsetY
+            }
+
+        })
+        window.addEventListener('keyup', (e) => drawing = false)
+
+        rangeW.addEventListener('change', function () {
+            ctx.lineWidth = +this.value
+        })
+        rangeW.addEventListener('mousemove', function () {
+            ctx.lineWidth = +this.value
+        })
+        colorS.addEventListener('change', function () {
+            randomColor = false
+            colorC = true
+            resetC.disabled = false
+            ctx.strokeStyle = this.value
+        })
+        resetC.addEventListener('click', () => {
+            randomColor = false
+            colorC = false
+            ctx.strokeStyle = '#000000'
+            colorS.value = '#000000'
+            resetC.disabled = true
+            randomC.disabled = !randomC.disabled
+        })
+        randomC.addEventListener('click', () => {
+            ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`
+            randomColor = true
+            colorS.value = '#000000'
+            resetC.disabled = false
+            randomC.disabled = true
+        })
+    </script>
+</body>
+
+</html>
